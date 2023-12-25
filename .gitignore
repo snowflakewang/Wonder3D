@@ -190,3 +190,12 @@ experiments/*
 ckpts/*
 neus/*
 instant-nsr-pl/exp/*
+
+# user-diy
+result.png
+tmp.py
+tmp.sh
+instant-renderer/exp/
+instant-nsr-pl/exp/
+NeuS/exp/
+outputs/

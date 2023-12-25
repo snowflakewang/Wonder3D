@@ -362,7 +362,7 @@ def run_demo():
                 processed_image_highres = gr.Image(type='pil', image_mode='RGBA', visible=False, tool=None)
         with gr.Row(variant='panel'):
             with gr.Column(scale=1):
-                example_folder = os.path.join(os.path.dirname(__file__), "./example_images")
+                example_folder = os.path.join(os.path.dirname(__file__), "example_images") # "./example_images"
                 example_fns = [os.path.join(example_folder, example) for example in os.listdir(example_folder)]
                 gr.Examples(
                     examples=example_fns,

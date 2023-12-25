@@ -1,4 +1,4 @@
-pretrained_model_name_or_path: 'flamehaze1115/wonder3d-v1.0' # or './ckpts'
+pretrained_model_name_or_path: '/cpfs01/user/wangyitong/.cache/huggingface/hub/models--flamehaze1115--wonder3d-v1.0/snapshots/d6d2efc033a06a74d3761268de7295c97e6935d2' #'flamehaze1115/wonder3d-v1.0' # or './ckpts'
 revision: null
 validation_dataset:
   root_dir: "./example_images" # the folder path stores testing images
