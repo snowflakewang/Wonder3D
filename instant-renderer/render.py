@@ -111,7 +111,7 @@ def main():
         **config.trainer
     )
     trainer.validate(system, datamodule=dm, ckpt_path=args.resume) # render multi-view images
-    trainer.test(system, datamodule=dm, ckpt_path=args.resume) # extract mesh
+    # trainer.test(system, datamodule=dm, ckpt_path=args.resume) # extract mesh
     # pdb.set_trace()
 
 if __name__ == '__main__':

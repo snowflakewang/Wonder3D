@@ -18,6 +18,7 @@ from utils.misc import get_rank
 
 from glob import glob
 import PIL.Image
+import tqdm
 
 import pdb
 
@@ -99,83 +100,114 @@ def load_a_prediction(root_dir, test_object, imSize, view_types, load_color=Fals
     directions = []
     ray_origins = []
 
-    RT_front = np.loadtxt(glob(os.path.join(cam_pose_dir, '*_%s_RT.txt'%( 'front')))[0])   # world2cam matrix
-    RT_front_cv = RT_opengl2opencv(RT_front)   # convert normal from opengl to opencv
-    for idx, view in enumerate(view_types):
-        print(os.path.join(root_dir,test_object))
-        '''
-        normal_filepath = os.path.join(root_dir, test_object, 'normals_000_%s.png'%( view))
-        # Load key frame
-        if load_color:  # use bgr
-            image =np.array(PIL.Image.open(normal_filepath.replace("normals", "rgb")).resize(imSize))[:, :, :3]
+    if cam_pose_dir == '/datasets/fixed_poses':
+        RT_front = np.loadtxt(glob(os.path.join(cam_pose_dir, '*_%s_RT.txt'%( 'front')))[0])   # world2cam matrix
+        RT_front_cv = RT_opengl2opencv(RT_front)   # convert normal from opengl to opencv
+        for idx, view in enumerate(view_types):
+            print(os.path.join(root_dir,test_object))
+            '''
+            normal_filepath = os.path.join(root_dir, test_object, 'normals_000_%s.png'%( view))
+            # Load key frame
+            if load_color:  # use bgr
+                image =np.array(PIL.Image.open(normal_filepath.replace("normals", "rgb")).resize(imSize))[:, :, :3]
 
-        normal = np.array(PIL.Image.open(normal_filepath).resize(imSize))
-        mask = normal[:, :, 3]
-        normal = normal[:, :, :3]
+            normal = np.array(PIL.Image.open(normal_filepath).resize(imSize))
+            mask = normal[:, :, 3]
+            normal = normal[:, :, :3]
 
-        color_mask = np.array(PIL.Image.open(os.path.join(root_dir,test_object, 'masked_colors/rgb_000_%s.png'%( view))).resize(imSize))[:, :, 3]
-        invalid_color_mask = color_mask < 255*0.5
-        threshold =  np.ones_like(image[:, :, 0]) * 250
-        invalid_white_mask = (image[:, :, 0] > threshold) & (image[:, :, 1] > threshold) & (image[:, :, 2] > threshold)
-        invalid_color_mask_final = invalid_color_mask & invalid_white_mask
-        color_mask = (1 - invalid_color_mask_final) > 0
-        '''
+            color_mask = np.array(PIL.Image.open(os.path.join(root_dir,test_object, 'masked_colors/rgb_000_%s.png'%( view))).resize(imSize))[:, :, 3]
+            invalid_color_mask = color_mask < 255*0.5
+            threshold =  np.ones_like(image[:, :, 0]) * 250
+            invalid_white_mask = (image[:, :, 0] > threshold) & (image[:, :, 1] > threshold) & (image[:, :, 2] > threshold)
+            invalid_color_mask_final = invalid_color_mask & invalid_white_mask
+            color_mask = (1 - invalid_color_mask_final) > 0
+            '''
 
-        # if erode_mask:
-        #     kernel = np.ones((3, 3), np.uint8)
-        #     mask = cv2.erode(mask, kernel, iterations=1)
+            # if erode_mask:
+            #     kernel = np.ones((3, 3), np.uint8)
+            #     mask = cv2.erode(mask, kernel, iterations=1)
 
-        RT = np.loadtxt(os.path.join(cam_pose_dir, '000_%s_RT.txt'%( view)))  # world2cam matrix
+            RT = np.loadtxt(os.path.join(cam_pose_dir, '000_%s_RT.txt'%( view)))  # world2cam matrix
 
-        '''
-        normal = img2normal(normal)
+            '''
+            normal = img2normal(normal)
 
-        normal[mask==0] = [0,0,0]
-        mask = mask> (0.5*255)
-        if load_color:
-            all_images.append(image)
-        
-        all_masks.append(mask)
-        all_color_masks.append(color_mask)
-        '''
-        RT_cv = RT_opengl2opencv(RT)   # convert normal from opengl to opencv
-        all_poses.append(inv_RT(RT_cv))   # cam2world
-        all_w2cs.append(RT_cv)
-        
-        '''
-        # whether to 
-        normal_cam_cv = normal_opengl2opencv(normal)
+            normal[mask==0] = [0,0,0]
+            mask = mask> (0.5*255)
+            if load_color:
+                all_images.append(image)
+            
+            all_masks.append(mask)
+            all_color_masks.append(color_mask)
+            '''
+            RT_cv = RT_opengl2opencv(RT)   # convert normal from opengl to opencv
+            all_poses.append(inv_RT(RT_cv))   # cam2world
+            all_w2cs.append(RT_cv)
+            
+            '''
+            # whether to 
+            normal_cam_cv = normal_opengl2opencv(normal)
 
-        if normal_system == 'front':
-            print("the loaded normals are defined in the system of front view")
-            normal_world = camNormal2worldNormal(inv_RT(RT_front_cv)[:3, :3], normal_cam_cv)
-        elif normal_system == 'self':
-            print("the loaded normals are in their independent camera systems")
-            normal_world = camNormal2worldNormal(inv_RT(RT_cv)[:3, :3], normal_cam_cv)
-        all_normals.append(normal_cam_cv)
-        all_normals_world.append(normal_world)
-        '''
+            if normal_system == 'front':
+                print("the loaded normals are defined in the system of front view")
+                normal_world = camNormal2worldNormal(inv_RT(RT_front_cv)[:3, :3], normal_cam_cv)
+            elif normal_system == 'self':
+                print("the loaded normals are in their independent camera systems")
+                normal_world = camNormal2worldNormal(inv_RT(RT_cv)[:3, :3], normal_cam_cv)
+            all_normals.append(normal_cam_cv)
+            all_normals_world.append(normal_world)
+            '''
 
-        if camera_type == 'ortho':
-            origins, dirs = get_ortho_ray_directions_origins(W=imSize[0], H=imSize[1])
-        elif camera_type == 'pinhole':
-            dirs = get_ray_directions(W=imSize[0], H=imSize[1],
-                                                 fx=cam_params[0], fy=cam_params[1], cx=cam_params[2], cy=cam_params[3])
-            origins = dirs # occupy a position
-        else:
-            raise Exception("not support camera type")
-        ray_origins.append(origins)
-        directions.append(dirs)
-        
+            if camera_type == 'ortho':
+                origins, dirs = get_ortho_ray_directions_origins(W=imSize[0], H=imSize[1])
+            elif camera_type == 'pinhole':
+                dirs = get_ray_directions(W=imSize[0], H=imSize[1],
+                                                    fx=cam_params[0], fy=cam_params[1], cx=cam_params[2], cy=cam_params[3])
+                origins = dirs # occupy a position
+            else:
+                raise Exception("not support camera type")
+            ray_origins.append(origins)
+            directions.append(dirs)
+            
+            '''
+            if not load_color:
+                all_images = [normal2img(x) for x in all_normals_world]
+            '''
         '''
-        if not load_color:
-            all_images = [normal2img(x) for x in all_normals_world]
+        return np.stack(all_images), np.stack(all_masks), np.stack(all_normals), \
+            np.stack(all_normals_world), np.stack(all_poses), np.stack(all_w2cs), np.stack(ray_origins), np.stack(directions), np.stack(all_color_masks)
         '''
-    '''
-    return np.stack(all_images), np.stack(all_masks), np.stack(all_normals), \
-        np.stack(all_normals_world), np.stack(all_poses), np.stack(all_w2cs), np.stack(ray_origins), np.stack(directions), np.stack(all_color_masks)
-    '''
-    return np.stack(all_poses), np.stack(all_w2cs), np.stack(ray_origins), np.stack(directions)
+        return np.stack(all_poses), np.stack(all_w2cs), np.stack(ray_origins), np.stack(directions)
+    
+    elif cam_pose_dir == './datasets/new_poses_cv':
+        pose_dirs = sorted(os.listdir(cam_pose_dir))
+        pose_dirs_tmp = []
+        for pose_dir in pose_dirs:
+            if pose_dir.split('.')[-1] == 'txt':
+                pose_dirs_tmp.append(pose_dir)
+        pose_dirs = pose_dirs_tmp
+        del pose_dirs_tmp
+
+        print('[INFO] Loading new camera poses.')
+        for pose_dir in tqdm.tqdm(pose_dirs):
+            RT_cv = np.loadtxt('%s/%s' % (cam_pose_dir, pose_dir))  # world2cam matrix
+
+            all_poses.append(inv_RT(RT_cv))   # cam2world
+            all_w2cs.append(RT_cv) # w2c
+
+            if camera_type == 'ortho':
+                origins, dirs = get_ortho_ray_directions_origins(W=imSize[0], H=imSize[1])
+            elif camera_type == 'pinhole':
+                dirs = get_ray_directions(W=imSize[0], H=imSize[1],
+                                                    fx=cam_params[0], fy=cam_params[1], cx=cam_params[2], cy=cam_params[3])
+                origins = dirs # occupy a position
+            else:
+                raise Exception("not support camera type")
+            ray_origins.append(origins)
+            directions.append(dirs)
+        print('[INFO] Loaded new camera poses.')
+            
+        return np.stack(all_poses), np.stack(all_w2cs), np.stack(ray_origins), np.stack(directions)
 
 class OrthoDatasetBase():
     def setup(self, config, split):
@@ -193,16 +225,19 @@ class OrthoDatasetBase():
         self.h = self.img_wh[1]
         self.camera_type = self.config.camera_type
         self.camera_params = self.config.camera_params  # [fx, fy, cx, cy]
-        
-        self.view_types = ['front', 'front_right', 'right', 'back', 'left', 'front_left', 'back_left', 'back_right', 'top']#, 'test']
 
         self.view_weights = torch.from_numpy(np.array(self.config.view_weights)).float().to(self.rank).view(-1)
         self.view_weights = self.view_weights.view(-1,1,1).repeat(1, self.h, self.w)
 
         if self.config.cam_pose_dir is None:
-            self.cam_pose_dir = "./datasets/fixed_poses"
+            self.cam_pose_dir = "./datasets/new_poses_cv"
         else:
             self.cam_pose_dir = self.config.cam_pose_dir
+        
+        if self.cam_pose_dir == '/datasets/fixed_poses':
+            self.view_types = ['front', 'front_right', 'right', 'back', 'left', 'front_left', 'back_left', 'back_right', 'top']#, 'test']
+        elif self.cam_pose_dir == './datasets/new_poses_cv':
+            self.view_types = None
         
         '''
         self.images_np, self.masks_np, self.normals_cam_np, self.normals_world_np, \
