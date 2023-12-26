@@ -49,6 +49,20 @@ result = make_grid(images, nrow=6, ncol=2, padding=0, value_range=(0, 1))
 
 save_image(result, 'result.png')
 ```
+### [Optional] instant-renderer
+```bash
+
+cd instant_renderer
+
+# generate user-defined camera poses
+# modify azimuths, elevations, and radius to define camera poses
+
+python gen_views.py
+
+# render the SDF from user-defined camera poses
+
+python render.py
+```
 
 ## Collaborations
 Our overarching mission is to enhance the speed, affordability, and quality of 3D AIGC, making the creation of 3D content accessible to all. While significant progress has been achieved in the recent years, we acknowledge there is still a substantial journey ahead. We enthusiastically invite you to engage in discussions and explore potential collaborations in any capacity. <span style="color:red">**If you're interested in connecting or partnering with us, please don't hesitate to reach out via email (xxlong@connect.hku.hk)**</span> .

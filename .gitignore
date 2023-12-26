@@ -196,7 +196,7 @@ result.png
 tmp.py
 tmp.sh
 instant-renderer/exp/
-instant-renderer/coord.py
+#instant-renderer/coord.py
 instant-renderer/datasets/fixed_poses_cv
 instant-renderer/datasets/new_poses_cv
 instant-nsr-pl/exp/
